@@ -6,20 +6,31 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Setup Environment
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential bc bison flex libssl-dev libelf-dev gcc-aarch64-linux-gnu
+          sudo apt-get install -y build-essential bc bison flex libssl-dev libelf-dev gcc-aarch64-linux-gnu gcc-10 g++-10
+          echo "CC=gcc-10" >> $GITHUB_ENV
+          echo "CXX=g++-10" >> $GITHUB_ENV
 
       - name: Build Kernel and Modules
         run: |
           export ARCH=arm64
           export CROSS_COMPILE=aarch64-linux-gnu-
+          export CC=gcc-10
+          
+          # If KernelSU folder is completely missing, remove its entry from drivers/Kconfig to prevent build failure
+          if [ ! -d "drivers/kernelsu" ]; then
+            sed -i '/kernelsu/d' drivers/Kconfig
+          fi
+          
           cp arch/arm64/configs/LawRun_defconfig .config
           make olddefconfig
           make -j$(nproc) modules
