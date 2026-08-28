@@ -20,5 +20,6 @@ jobs:
         run: |
           export ARCH=arm64
           export CROSS_COMPILE=aarch64-linux-gnu-
-          make LawRun_defconfig
+          cp arch/arm64/configs/LawRun_defconfig .config
+          make olddefconfig
           make -j$(nproc) modules
