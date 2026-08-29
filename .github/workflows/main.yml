@@ -40,6 +40,7 @@ jobs:
           echo "CONFIG_ATH9K_HTC=m" >> out/.config
 
           make O=out olddefconfig
+          make -j$(nproc --all) O=out KCFLAGS="-w" HOSTCFLAGS="-w"
           make -j$(nproc --all) O=out modules KCFLAGS="-w" HOSTCFLAGS="-w"
 
       - name: Package with AnyKernel3
